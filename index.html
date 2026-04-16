@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Entregador - SPCK</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: auto;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .header h1 {
+            color: #667eea;
+            font-size: 24px;
+        }
+        
+        .nav-pages {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .nav-btn {
+            flex: 1;
+            padding: 12px;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            border-radius: 15px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #667eea;
+        }
+        
+        .nav-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 18px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 12px;
+            border-left: 4px solid #667eea;
+            padding-left: 10px;
+            font-size: 16px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            margin: 5px 0;
+            background: #667eea;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        button:active {
+            background: #5a67d8;
+        }
+        
+        .btn-sec {
+            background: #f093fb;
+        }
+        
+        .btn-danger {
+            background: #f5576c;
+        }
+        
+        .info-box {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 10px;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .value {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 8px;
+            background: #f0f0f0;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .historico-content {
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        
+        .history-item {
+            background: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 10px;
+            border-left: 3px solid #667eea;
+            font-size: 12px;
+        }
+        
+        .feedback {
+            background: #4ade80;
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+            font-size: 12px;
+        }
+        
+        .feedback.error {
+            background: #f87171;
+        }
+        
+        .row-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        label {
+            display: block;
+            margin-top: 8px;
+            font-weight: bold;
+            color: #555;
+            font-size: 12px;
+        }
+        
+        .empty {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🛵 ENTREGADOR PRO</h1>
+        <p>Gestão de entregas</p>
+    </div>
+
+    <div class="nav-pages">
+        <button class="nav-btn active" onclick="mostrarPagina('calculo')">📊 PAINEL DO DIA</button>
+        <button class="nav-btn" onclick="mostrarPagina('historico')">📜 HISTÓRICO</button>
+    </div>
+
+    <!-- PÁGINA 1: CÁLCULO -->
+    <div id="pageCalculo" class="page active">
+        <div class="card">
+            <h3>📊 RESUMO DO DIA</h3>
+            <div class="info-box">
+                <div class="info-row">
+                    <span>📦 Total de Entregas:</span>
+                    <span class="value" id="totalEntregas">0</span>
+                </div>
+                <div class="info-row">
+                    <span>💰 Faturamento:</span>
+                    <span class="value" id="totalFaturamento">R$ 0,00</span>
+                </div>
+                <div class="info-row">
+                    <span>💚 Lucro Líquido:</span>
+                    <span class="value" id="lucroLiquido">R$ 0,00</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>📦 NOVA ENTREGA</h3>
+            <label>💵 Valor da entrega:</label>
+            <input type="number" id="valorEntrega" placeholder="Ex: 15.50" step="0.01">
+            <button onclick="adicionarEntrega()">🔢 CALCULAR ENTREGA</button>
+            <div id="feedback" class="feedback"></div>
+        </div>
+
+        <div class="card">
+            <h3>⛽ DESPESAS</h3>
+            <label>⛽ Gasolina (R$):</label>
+            <input type="number" id="gasolina" value="0" step="0.01" oninput="atualizarGastos()">
+            <label>🍔 Lanche (R$):</label>
+            <input type="number" id="lanche" value="0" step="0.01" oninput="atualizarGastos()">
+            <label>📏 KM rodados:</label>
+            <input type="number" id="km" value="0" step="0.1" oninput="atualizarGastos()">
+        </div>
+
+        <div class="row-buttons">
+            <button class="btn-sec" onclick="encerrarDia()">🏁 ENCERRAR DIA</button>
+            <button class="btn-danger" onclick="limparDia()">🔄 LIMPAR DIA</button>
+        </div>
+    </div>
+
+    <!-- PÁGINA 2: HISTÓRICO -->
+    <div id="pageHistorico" class="page">
+        <div class="card">
+            <h3>📜 HISTÓRICO</h3>
+            <div class="tabs">
+                <div class="tab active" onclick="abrirDiario()">📆 DIÁRIO</div>
+                <div class="tab" onclick="abrirMensal()">📅 MENSAL</div>
+            </div>
+            <div id="listaDiario" class="historico-content">
+                <div class="empty">📭 Nenhum dia encerrado</div>
+            </div>
+            <div id="listaMensal" class="historico-content" style="display:none;">
+                <div class="empty">📊 Nenhum dado mensal</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Variáveis globais
+    var entregas = [];
+    var gasolina = 0;
+    var lanche = 0;
+    var km = 0;
+    var historico = [];
+    
+    // Função para atualizar tela
+    function atualizarTela() {
+        var totalEnt = entregas.length;
+        var fat = 0;
+        for (var i = 0; i < entregas.length; i++) {
+            fat = fat + entregas[i];
+        }
+        var gastos = gasolina + lanche;
+        var lucro = fat - gastos;
+        
+        document.getElementById('totalEntregas').innerHTML = totalEnt;
+        document.getElementById('totalFaturamento').innerHTML = 'R$ ' + fat.toFixed(2);
+        document.getElementById('lucroLiquido').innerHTML = 'R$ ' + lucro.toFixed(2);
+        
+        salvarDados();
+    }
+    
+    // Mostrar mensagem
+    function mostrarMsg(texto, ehErro) {
+        var fb = document.getElementById('feedback');
+        fb.innerHTML = texto;
+        fb.style.display = 'block';
+        if (ehErro) {
+            fb.className = 'feedback error';
+        } else {
+            fb.className = 'feedback';
+        }
+        setTimeout(function() {
+            fb.style.display = 'none';
+        }, 2000);
+    }
+    
+    // FUNÇÃO PRINCIPAL - ADICIONAR ENTREGA
+    function adicionarEntrega() {
+        var inputValor = document.getElementById('valorEntrega');
+        var valor = parseFloat(inputValor.value);
+        
+        if (isNaN(valor) || valor <= 0) {
+            mostrarMsg('Digite um valor válido!', true);
+            inputValor.value = '';
+            inputValor.focus();
+            return;
+        }
+        
+        entregas.push(valor);
+        mostrarMsg('Entrega de R$ ' + valor.toFixed(2) + ' adicionada!', false);
+        inputValor.value = '';
+        inputValor.focus();
+        atualizarTela();
+    }
+    
+    // Atualizar gastos
+    function atualizarGastos() {
+        var g = parseFloat(document.getElementById('gasolina').value);
+        var l = parseFloat(document.getElementById('lanche').value);
+        var k = parseFloat(document.getElementById('km').value);
+        
+        if (isNaN(g)) g = 0;
+        if (isNaN(l)) l = 0;
+        if (isNaN(k)) k = 0;
+        
+        gasolina = g;
+        lanche = l;
+        km = k;
+        atualizarTela();
+    }
+    
+    // Encerrar dia
+    function encerrarDia() {
+        var totalEnt = entregas.length;
+        var fat = 0;
+        for (var i = 0; i < entregas.length; i++) {
+            fat = fat + entregas[i];
+        }
+        var gastos = gasolina + lanche;
+        var lucro = fat - gastos;
+        
+        if (totalEnt === 0 && gastos === 0 && km === 0) {
+            if (!confirm('Nenhum dado. Encerrar mesmo assim?')) {
+                return;
+            }
+        }
+        
+        var agora = new Date();
+        var dataStr = agora.toLocaleDateString('pt-BR') + ' ' + agora.toLocaleTimeString('pt-BR');
+        
+        var registro = {
+            data: dataStr,
+            entregas: totalEnt,
+            faturamento: fat,
+            gasolina: gasolina,
+            lanche: lanche,
+            km: km,
+            lucro: lucro
+        };
+        
+        historico.unshift(registro);
+        
+        // Resetar
+        entregas = [];
+        gasolina = 0;
+        lanche = 0;
+        km = 0;
+        
+        document.getElementById('valorEntrega').value = '';
+        document.getElementById('gasolina').value = 0;
+        document.getElementById('lanche').value = 0;
+        document.getElementById('km').value = 0;
+        
+        atualizarTela();
+        mostrarHistoricoDiario();
+        mostrarHistoricoMensal();
+        
+        mostrarMsg('Dia encerrado! ' + totalEnt + ' entregas', false);
+    }
+    
+    // Limpar dia
+    function limparDia() {
+        if (confirm('Limpar todas as entregas e gastos do dia?')) {
+            entregas = [];
+            gasolina = 0;
+            lanche = 0;
+            km = 0;
+            
+            document.getElementById('valorEntrega').value = '';
+            document.getElementById('gasolina').value = 0;
+            document.getElementById('lanche').value = 0;
+            document.getElementById('km').value = 0;
+            
+            atualizarTela();
+            mostrarMsg('Dia limpo!', false);
+        }
+    }
+    
+    // Mostrar histórico diário
+    function mostrarHistoricoDiario() {
+        var container = document.getElementById('listaDiario');
+        if (historico.length === 0) {
+            container.innerHTML = '<div class="empty">📭 Nenhum dia encerrado</div>';
+            return;
+        }
+        
+        var html = '';
+        for (var i = 0; i < historico.length; i++) {
+            var h = historico[i];
+            html += '<div class="history-item">';
+            html += '<strong>📅 ' + h.data + '</strong><br>';
+            html += '🛵 ' + h.entregas + ' entregas | R$ ' + h.faturamento.toFixed(2) + '<br>';
+            html += '⛽ R$ ' + h.gasolina.toFixed(2) + ' | 🍔 R$ ' + h.lanche.toFixed(2) + ' | 📏 ' + h.km.toFixed(1) + ' km<br>';
+            html += '<strong>💵 Lucro: R$ ' + h.lucro.toFixed(2) + '</strong>';
+            html += '</div>';
+        }
+        container.innerHTML = html;
+    }
+    
+    // Mostrar histórico mensal
+    function mostrarHistoricoMensal() {
+        var container = document.getElementById('listaMensal');
+        if (historico.length === 0) {
+            container.innerHTML = '<div class="empty">📊 Nenhum dado mensal</div>';
+            return;
+        }
+        
+        var meses = {};
+        for (var i = 0; i < historico.length; i++) {
+            var h = historico[i];
+            var partes = h.data.split(' ')[0].split('/');
+            if (partes.length === 3) {
+                var chave = partes[1] + '/' + partes[2];
+                if (!meses[chave]) {
+                    meses[chave] = {
+                        gasto: 0,
+                        entregas: 0,
+                        km: 0,
+                        faturamento: 0,
+                        lucro: 0
+                    };
+                }
+                meses[chave].gasto += (h.gasolina + h.lanche);
+                meses[chave].entregas += h.entregas;
+                meses[chave].km += h.km;
+                meses[chave].faturamento += h.faturamento;
+                meses[chave].lucro += h.lucro;
+            }
+        }
+        
+        var html = '';
+        for (var chave in meses) {
+            var m = meses[chave];
+            html += '<div class="history-item">';
+            html += '<strong>📆 Mês: ' + chave + '</strong><br>';
+            html += '💸 GASTO TOTAL: R$ ' + m.gasto.toFixed(2) + '<br>';
+            html += '🛵 ' + m.entregas + ' entregas | 📏 ' + m.km.toFixed(1) + ' km<br>';
+            html += '💰 Faturamento: R$ ' + m.faturamento.toFixed(2) + '<br>';
+            html += '💚 Lucro: R$ ' + m.lucro.toFixed(2);
+            html += '</div>';
+        }
+        container.innerHTML = html;
+    }
+    
+    // Navegação
+    function mostrarPagina(pagina) {
+        var pageCalculo = document.getElementById('pageCalculo');
+        var pageHistorico = document.getElementById('pageHistorico');
+        var botoes = document.querySelectorAll('.nav-btn');
+        
+        if (pagina === 'calculo') {
+            pageCalculo.classList.add('active');
+            pageHistorico.classList.remove('active');
+            botoes[0].classList.add('active');
+            botoes[1].classList.remove('active');
+        } else {
+            pageHistorico.classList.add('active');
+            pageCalculo.classList.remove('active');
+            botoes[1].classList.add('active');
+            botoes[0].classList.remove('active');
+            mostrarHistoricoDiario();
+            mostrarHistoricoMensal();
+        }
+    }
+    
+    // Abas do histórico
+    function abrirDiario() {
+        var tabDiario = document.querySelectorAll('.tab')[0];
+        var tabMensal = document.querySelectorAll('.tab')[1];
+        var listaDiario = document.getElementById('listaDiario');
+        var listaMensal = document.getElementById('listaMensal');
+        
+        tabDiario.classList.add('active');
+        tabMensal.classList.remove('active');
+        listaDiario.style.display = 'block';
+        listaMensal.style.display = 'none';
+        mostrarHistoricoDiario();
+    }
+    
+    function abrirMensal() {
+        var tabMensal = document.querySelectorAll('.tab')[1];
+        var tabDiario = document.querySelectorAll('.tab')[0];
+        var listaDiario = document.getElementById('listaDiario');
+        var listaMensal = document.getElementById('listaMensal');
+        
+        tabMensal.classList.add('active');
+        tabDiario.classList.remove('active');
+        listaDiario.style.display = 'none';
+        listaMensal.style.display = 'block';
+        mostrarHistoricoMensal();
+    }
+    
+    // Salvar dados
+    function salvarDados() {
+        var dados = {
+            entregas: entregas,
+            gasolina: gasolina,
+            lanche: lanche,
+            km: km,
+            historico: historico
+        };
+        localStorage.setItem('app_entregador', JSON.stringify(dados));
+    }
+    
+    // Carregar dados
+    function carregarDados() {
+        var dadosSalvos = localStorage.getItem('app_entregador');
+        if (dadosSalvos) {
+            try {
+                var obj = JSON.parse(dadosSalvos);
+                entregas = obj.entregas || [];
+                gasolina = obj.gasolina || 0;
+                lanche = obj.lanche || 0;
+                km = obj.km || 0;
+                historico = obj.historico || [];
+                
+                document.getElementById('gasolina').value = gasolina;
+                document.getElementById('lanche').value = lanche;
+                document.getElementById('km').value = km;
+            } catch(e) {}
+        }
+        atualizarTela();
+        mostrarHistoricoDiario();
+        mostrarHistoricoMensal();
+    }
+    
+    // Iniciar
+    carregarDados();
+</script>
+</body>
+</html>
